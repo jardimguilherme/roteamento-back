@@ -1,4 +1,4 @@
-import extractKml
+import extractKml as kml
 import createGraph as graph
 import tspDijskstra as tsp
 from flask import Flask, request, jsonify
@@ -11,9 +11,9 @@ app = Flask(__name__)
 @app.route('/gates', methods=['GET'])
 @cross_origin()
 def get_gates():
-    # pontos = extrair_nomes_e_coordenadas(caminho_arquivo)
-
     # Retorna uma lista de portões disponíveis
+    caminho_arquivo = 'static/coordenadas.kml'
+    pontos = kml.extrair_nomes_e_coordenadas(caminho_arquivo)
     names = [ponto['nome'] for ponto in pontos]
     return jsonify(sorted(names))
 
@@ -25,6 +25,10 @@ def get_route():
     gates = request.json['gates']
     print(gates)
     start_gate = 'Estacionamento'
+
+    caminho_arquivo = 'static/coordenadas.kml'
+    pontos = kml.extrair_nomes_e_coordenadas(caminho_arquivo)
+    grafo = graph.criar_grafo(pontos)
     
     # Calcula a melhor rota
     route = tsp.caixeiro_viajante(grafo, gates, start_gate)
@@ -34,7 +38,4 @@ def get_route():
 
 
 if __name__ == '__main__':
-    caminho_arquivo = 'static/coordenadas.kml'
-    pontos = extractKml.extrair_nomes_e_coordenadas(caminho_arquivo)
-    grafo = graph.criar_grafo(pontos)
     app.run(debug=True)
